@@ -1,0 +1,9 @@
+[packages]
+scikit-learn = "*"
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
+seaborn = "*"
+
+[requires]
+python_version = "3.11"
