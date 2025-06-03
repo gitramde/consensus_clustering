@@ -1,6 +1,25 @@
-from sklearn.datasets import load_iris
+import logging
+from sklearn.datasets import fetch_20newsgroups
 
-class data_load():
-    iris = load_iris()
-    iris_data = iris.data
-    n_samples = iris_data.shape[0]
+logger = logging.getLogger(__name__)
+
+class data_load:
+    _instance = None
+
+    # Singleton Pattern to just create one instance
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        self.newsgroup = fetch_20newsgroups(subset='all', remove=('footers','quotes'))
+        self.text = self.newsgroup.data
+        self.labels = self.newsgroup.target
+        self.target_names = self.newsgroup.target_names
+
+    def get_labels(self):
+        return self.labels
+
+    def get_data(self):
+        return self.text
