@@ -42,41 +42,42 @@ def agglomerative(text, type):
     Similarity is converted to distance by subtracting from 1
     """
     start_time = time.monotonic()
-    print("Calling vectorize_data")
+    print("STEP 1: Calling vectorize_data")
     vect_dataset = vectorize_data(text)
     n_samples = vect_dataset.shape[0]
     end_time = time.monotonic()
     duration = end_time - start_time
-    print("Duration: ", duration)
-    print("Calling base_clustering")
+    print("Elapsed Time in Seconds: ", duration)
+    print("STEP 2: Calling base_clustering")
     start_time = time.monotonic()
     bc = base_clustering(vect_dataset, type)
     end_time = time.monotonic()
     duration = end_time - start_time
-    print("Duration: ", duration)
-    print("Calling coassociation_matrix")
+    print("Elapsed Time in Seconds: ", duration)
+    print("STEP 3: Calling coassociation_matrix")
     start_time = time.monotonic()
     coassoc=coassociation_matrix(n_samples, bc)
-    sample_idx = np.random.choice(n_samples, 2000, replace=False)
-    coassoc_sample = coassoc[np.ix_(sample_idx, sample_idx)]
-    distance_matrix = 1 - coassoc_sample
+    #sample_idx = np.random.choice(n_samples, 2000, replace=False)
+    #coassoc_sample = coassoc[np.ix_(sample_idx, sample_idx)]
+    #distance_matrix = 1 - coassoc_sample
     end_time = time.monotonic()
     duration = end_time - start_time
-    print("Duration: ", duration)
-    print("Calling AgglomerativeClustering")
+    print("Elapsed Time in Seconds: ", duration)
+    print("STEP 4: Calling AgglomerativeClustering")
     start_time = time.monotonic()
     consensus = AgglomerativeClustering(n_clusters= parameters.n_clusters,
                                         metric='precomputed',
                                         linkage='average')
     end_time = time.monotonic()
     duration = end_time - start_time
-    print("Duration: ", duration)
-    print("Calling fit_predict")
+    print("Elapsed Time in Seconds: ", duration)
+    print("STEP 5: Calling fit_predict")
     start_time = time.monotonic()
+    distance_matrix = 1 - coassoc
     consensus_labels = consensus.fit_predict(distance_matrix)
     end_time = time.monotonic()
     duration = end_time - start_time
-    print("Duration: ", duration)
+    print("Elapsed Time in Seconds: ", duration)
     return consensus_labels
 
 def model_evaluation(consensus_labels, true_labels):
