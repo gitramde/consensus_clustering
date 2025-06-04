@@ -23,3 +23,9 @@ class data_load:
 
     def get_data(self):
         return self.text
+
+if __name__ == "__main__":
+    dl = data_load()
+    data = dl.get_data()
+    print(type(data))
+    print(len(data))
