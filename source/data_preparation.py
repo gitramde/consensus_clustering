@@ -5,6 +5,7 @@ class process:
     def vectorize_data(self, text):
         vectorizer = TfidfVectorizer( max_df=parameters.tdidf_max_df
                              ,min_df=parameters.tdidf_min_df
+                             ,max_features=parameters.max_features
                              ,stop_words='english')
 
         vect_dataset = vectorizer.fit_transform(text)

@@ -13,8 +13,10 @@ class data_load:
         return cls._instance
 
     def __init__(self):
-        self.newsgroup = fetch_20newsgroups(subset='all', remove=('footers','quotes'))
-        self.text = self.newsgroup.data
+        self.categories = ['comp.graphics', 'rec.sport.baseball', 'sci.space', 'talk.politics.mideast']
+        self.newsgroup = fetch_20newsgroups(subset='train',
+                                            categories = self.categories,
+                                            remove=('footers','quotes'))
         self.labels = self.newsgroup.target
         self.target_names = self.newsgroup.target_names
 
@@ -22,7 +24,7 @@ class data_load:
         return self.labels
 
     def get_data(self):
-        return self.text
+        return self.newsgroup, self.categories
 
 if __name__ == "__main__":
     dl = data_load()

@@ -1,8 +1,7 @@
 import numpy as np
-import time
 from config import parameters
-from sklearn.cluster import AgglomerativeClustering
-from clustering import kmeans_clustering
+from scipy.spatial.distance import squareform
+from scipy.cluster.hierarchy import linkage, fcluster
 
 def coassociation_matrix(n_samples, base_clustering):
     coassoc = np.zeros((n_samples, n_samples))
@@ -15,37 +14,10 @@ def coassociation_matrix(n_samples, base_clustering):
     coassoc /= parameters.n_base_clusterings # normalize to [0, 1]
     return coassoc
 
-def agglomerative(vect_dataset):
-    """
-    Consesus clustering using agglomerative on coassociation matrix
-    Similarity is converted to distance by subtracting from 1
-    """
-    n_samples = vect_dataset.shape[0]
-    print("STEP 1: Calling base_clustering")
-    start_time = time.monotonic()
-    bc = kmeans_clustering(vect_dataset)
-    end_time = time.monotonic()
-    duration = end_time - start_time
-    print("Elapsed Time in Seconds: ", duration)
-    print("STEP 2: Calling coassociation_matrix")
-    start_time = time.monotonic()
-    coassoc=coassociation_matrix(n_samples, bc)
-    end_time = time.monotonic()
-    duration = end_time - start_time
-    print("Elapsed Time in Seconds: ", duration)
-    print("STEP 3: Calling AgglomerativeClustering")
-    start_time = time.monotonic()
-    consensus = AgglomerativeClustering(n_clusters= parameters.n_clusters,
-                                        metric='precomputed',
-                                        linkage='average')
-    end_time = time.monotonic()
-    duration = end_time - start_time
-    print("Elapsed Time in Seconds: ", duration)
-    print("STEP 4: Calling fit_predict")
-    start_time = time.monotonic()
-    distance_matrix = 1 - coassoc
-    consensus_labels = consensus.fit_predict(distance_matrix)
-    end_time = time.monotonic()
-    duration = end_time - start_time
-    print("Elapsed Time in Seconds: ", duration)
+def hierarchial_clustering(coassoc_matrix, n_clusters):
+    np.fill_diagonal(coassoc_matrix, 1.0)
+    distance_matrix = 1 - coassoc_matrix
+    np.fill_diagonal(distance_matrix, 0.0)
+    linked = linkage(squareform(distance_matrix), method='average')
+    consensus_labels = fcluster(linked, n_clusters, criterion='maxclust')
     return consensus_labels
