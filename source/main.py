@@ -28,6 +28,16 @@ def core_module(consensus_approach):
     end_time = time.monotonic()
     duration = end_time - start_time
     print("Elapsed Time in Seconds: ", duration)
+    true_labels = newsgroup.target
+    base_ari_scores = np.array([
+        adjusted_rand_score(true_labels, labels) for labels in bc
+    ])
+    print("Base K-Means ARI:")
+    print(
+        f"  mean +/- std over {len(base_ari_scores)} runs: "
+        f"{base_ari_scores.mean():.3f} +/- {base_ari_scores.std():.3f}"
+    )
+    print(f"  best run: {base_ari_scores.max():.3f}")
     if consensus_approach == 'Coassociation':
         print("***** COASSOCIATION MATRIX METHOD ********")
         print("STEP 4: Building coassociation_matrix")
@@ -45,9 +55,11 @@ def core_module(consensus_approach):
     elif consensus_approach == 'Median':
         print("***** MEDIAN PARTITIONING METHOD ********")
         print("STEP 4: Compute pairwise ARI similarity matrix")
-        similarity_matrix = np.zeros((n_clusters, n_clusters))
-        for i in range(n_clusters):
-            for j in range(i+1, n_clusters):
+        start_time = time.monotonic()
+        n_base_clusterings = len(bc)
+        similarity_matrix = np.zeros((n_base_clusterings, n_base_clusterings))
+        for i in range(n_base_clusterings):
+            for j in range(i+1, n_base_clusterings):
                 ari = adjusted_rand_score(bc[i], bc[j])
                 similarity_matrix[i, j] = ari
                 similarity_matrix[j, i] = ari
@@ -60,9 +72,13 @@ def core_module(consensus_approach):
         print("Elapsed Time in Seconds: ", duration)
     print("STEP 6: Evaluate against ground truth")
     start_time = time.monotonic()
-    true_labels = newsgroup.target
     ari_score = adjusted_rand_score(true_labels, consensus_labels)
-    print(ari_score)
+    print(f"{consensus_approach} consensus ARI: {ari_score:.3f}")
+    print("ARI summary:")
+    print(f"  Single K-Means - mean over {len(base_ari_scores)} runs: "
+          f"{base_ari_scores.mean():.3f} +/- {base_ari_scores.std():.3f}")
+    print(f"  Single K-Means - best run: {base_ari_scores.max():.3f}")
+    print(f"  {consensus_approach} consensus: {ari_score:.3f}")
     end_time = time.monotonic()
     duration = end_time - start_time
     print("Elapsed Time in Seconds: ", duration)
